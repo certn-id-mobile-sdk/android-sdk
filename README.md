@@ -26,7 +26,10 @@ build.gradle
 allprojects {
     repositories {
         maven {
-            url 'https://maven.pkg.github.com/certn-id-mobile-sdk/android-sdk-private'
+            url = "https://maven.innovatrics.com/releases"
+        }
+        maven {
+            url = "https://maven.pkg.github.com/certn-id-mobile-sdk/android-sdk'
             credentials {
                 username "${certn_id_user}"
                 password "${certn_id_password}"
@@ -41,7 +44,7 @@ build.gradle
 ```kotlin
 dependencies {
     //…
-    implementation "certn-id-mobile-sdk:android-sdk-private:$certnIdVersion"
+    implementation "co.certn.id:android-sdk:$certnIdVersion" //lattest version 0.0.6
     //…
 }
 ```
@@ -215,7 +218,7 @@ val standard = CertnIDQualityAttributeThresholdPresets.standard
 
 // Modified thresholds based on the standard preset
 val modified = standard.copy(
-    minConfidence = 0.8
+    minConfidence = 0.8,
     minSharpness = null
 )
 ```
