@@ -29,7 +29,7 @@ allprojects {
             url = "https://maven.innovatrics.com/releases"
         }
         maven {
-            url = "https://maven.pkg.github.com/certn-id-mobile-sdk/android-sdk'
+            url = "https://maven.pkg.github.com/certn-id-mobile-sdk/android-sdk"
             credentials {
                 username "${certn_id_user}"
                 password "${certn_id_password}"
