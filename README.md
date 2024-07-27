@@ -44,7 +44,7 @@ build.gradle
 ```kotlin
 dependencies {
     //…
-    implementation "co.certn.id:android-sdk:$certnIdVersion" //lattest version 0.0.6
+    implementation "certn-id-mobile-sdk:android-sdk:$certnIdVersion" //lattest version 0.0.5
     //…
 }
 ```
