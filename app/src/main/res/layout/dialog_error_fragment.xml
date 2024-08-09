@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/shape_black_radius_12"
+    android:paddingBottom="40dp"
+    tools:ignore="ContentDescription,TextContrastCheck,TouchTargetSizeCheck">
+
+    <TextView
+        android:id="@+id/lblTitle"
+        style="@style/Text.H1"
+        android:layout_width="0dp"
+        android:layout_margin="32dp"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="lblTitle" />
+
+    <TextView
+        android:id="@+id/lblDescription"
+        style="@style/Text"
+        android:layout_width="0dp"
+        android:layout_margin="24dp"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lblTitle"
+        tools:text="lblDescription" />
+
+    <View
+        android:id="@+id/lnDivider"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_margin="24dp"
+        android:background="@drawable/stroke_dash_outline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lblDescription" />
+
+    <Button
+        android:id="@+id/btnPrimary"
+        style="@style/PrimaryButton"
+        android:layout_width="0dp"
+        android:layout_margin="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lnDivider"
+        tools:ignore="TextContrastCheck"
+        tools:text="PrimaryButton" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#090a26"
+    android:keepScreenOn="true">
+
+    <TextView
+        android:id="@+id/lblQrTitle"
+        style="@style/Text.H1"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Use your smartphone" />
+
+    <TextView
+        android:id="@+id/lblQrDescription"
+        style="@style/Text"
+        android:layout_width="0dp"
+        android:layout_marginHorizontal="64dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lblQrTitle"
+        tools:text="Scan QR code to launch identity verification on your smartphone" />
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/pvCamera"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginVertical="64dp"
+        app:layout_constraintBottom_toTopOf="@id/btnQrContinue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lblQrDescription" />
+
+    <View
+        android:id="@+id/layQrStroke"
+        android:layout_width="196dp"
+        android:layout_height="196dp"
+        android:background="@drawable/ic_qr_stroke"
+        app:layout_constraintBottom_toBottomOf="@id/pvCamera"
+        app:layout_constraintEnd_toEndOf="@id/pvCamera"
+        app:layout_constraintStart_toStartOf="@id/pvCamera"
+        app:layout_constraintTop_toTopOf="@id/pvCamera"
+        app:layout_constraintVertical_bias="0.47692" />
+
+    <Button
+        android:id="@+id/btnQrContinue"
+        style="@style/PrimaryButton"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginBottom="32dp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Continue on this device" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

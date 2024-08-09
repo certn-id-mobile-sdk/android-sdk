@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/qrScanFragment"
+    tools:ignore="UnusedResources">
+
+    <fragment
+        android:id="@+id/qrScanFragment"
+        android:name="com.certn.mobile.ui.qr.QrScanFragment"
+        android:label="QrScanFragment"
+        tools:layout="@layout/fragment_qr_scan">
+
+        <action
+            android:id="@+id/action_qrScanFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.certn.mobile.ui.home.HomeFragment"
+        android:label="HomeFragment"
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_homeFragment_to_basicDocumentAutoCaptureFragment"
+            app:destination="@id/basicDocumentAutoCaptureFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/basicDocumentAutoCaptureFragment"
+        android:name="com.certn.mobile.documentautocapture.BasicDocumentAutoCaptureFragment"
+        android:label="@string/navigation_destination_document_auto_capture">
+
+        <action
+            android:id="@+id/action_basicDocumentAutoCaptureFragment_to_documentAutoCaptureResultFragment"
+            app:destination="@id/documentAutoCaptureResultFragment" />
+
+        <action
+            android:id="@+id/action_basicDocumentAutoCaptureFragment_to_basicFaceAutoCaptureFragment"
+            app:destination="@id/basicFaceAutoCaptureFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/documentAutoCaptureResultFragment"
+        android:name="com.certn.mobile.documentautocapture.DocumentAutoCaptureResultFragment"
+        android:label="@string/navigation_destination_document_auto_capture"
+        tools:layout="@layout/fragment_auto_capture_result" />
+
+    <fragment
+        android:id="@+id/basicFaceAutoCaptureFragment"
+        android:name="com.certn.mobile.faceautocapture.BasicFaceAutoCaptureFragment"
+        android:label="@string/navigation_destination_face_auto_capture">
+
+        <action
+            android:id="@+id/action_basicFaceAutoCaptureFragment_to_faceAutoCaptureResultFragment"
+            app:destination="@id/faceAutoCaptureResultFragment" />
+
+        <action
+            android:id="@+id/action_basicFaceAutoCaptureFragment_to_nfcReadingFragment"
+            app:destination="@id/nfcReadingFragment" />
+
+        <action
+            android:id="@+id/action_basicFaceAutoCaptureFragment_to_captureCompleteFragment"
+            app:destination="@id/captureCompleteFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/faceAutoCaptureResultFragment"
+        android:name="com.certn.mobile.faceautocapture.FaceAutoCaptureResultFragment"
+        android:label="@string/navigation_destination_face_auto_capture"
+        tools:layout="@layout/fragment_auto_capture_result" />
+
+    <fragment
+        android:id="@+id/nfcReadingFragment"
+        android:name="com.certn.mobile.nfcreading.NfcReadingFragment"
+        android:label="@string/navigation_destination_nfc_reading"
+        tools:layout="@layout/fragment_nfc_reading">
+
+        <action
+            android:id="@+id/action_nfcReadingFragment_to_nfcReadingResultFragment"
+            app:destination="@id/nfcReadingResultFragment" />
+
+        <action
+            android:id="@+id/action_nfcReadingFragment_to_captureCompleteFragment"
+            app:destination="@id/captureCompleteFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nfcReadingResultFragment"
+        android:name="com.certn.mobile.nfcreading.NfcReadingResultFragment"
+        android:label="NfcReadingResultFragment" />
+
+    <fragment
+        android:id="@+id/captureCompleteFragment"
+        android:name="com.certn.mobile.ui.CaptureCompleteFragment"
+        android:label="CaptureCompleteFragment"
+        tools:layout="@layout/fragment_auto_capture_result" />
+
+    <action
+        android:id="@+id/action_global_qrScanFragment"
+        app:destination="@id/qrScanFragment" />
+
+</navigation>

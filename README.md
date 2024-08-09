@@ -26,9 +26,6 @@ build.gradle
 allprojects {
     repositories {
         maven {
-            url = "https://maven.innovatrics.com/releases"
-        }
-        maven {
             url = "https://maven.pkg.github.com/certn-id-mobile-sdk/android-sdk"
             credentials {
                 username "${certn_id_user}"
@@ -44,7 +41,7 @@ build.gradle
 ```kotlin
 dependencies {
     //…
-    implementation "certn-id-mobile-sdk:android-sdk:$certnIdVersion" //lattest version 0.0.5
+    implementation "certn-id-mobile-sdk:android-sdk:$certnIdVersion" //lattest version 0.5.9
     //…
 }
 ```
@@ -151,10 +148,25 @@ class BasicDocumentAutoCaptureFragment : CertnIDDocumentAutoCaptureFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        certnIDStart()
+        setupCertnIDSdkViewModel()
     }
 
     //…
+}
+```
+
+```kotlin
+private fun setupCertnIDSdkViewModel() {
+    collectStateFlow {
+        launch {
+            certnIDSdkViewModel.state.collect { state ->
+                if (state.isInitialized) {
+                    certnIDStart()
+                }
+                //...
+            }
+        }
+    }
 }
 ```
 
