@@ -19,7 +19,7 @@ CertnIDSDK provides components for document capture, digital onboarding process,
 **Maven Repository**
 CertnIDSDK is distributed as an Android library (.aar package) stored in the Certn maven repository.
 
-In order to integrate CertnIDSDK into your project, the first step is to include the Certn maven repository and Google repository to your top level build.gradle file.
+In order to integrate CertnIDSDK into your project, the first step is to include Certn, Innovatrics maven repositories and Google repository to your top level build.gradle file.
 
 build.gradle
 ```kotlin
@@ -96,11 +96,18 @@ defaultConfig {
 ```
 In order to obtain the license, please contact your Certn’ representative specifying the application ID. If the application uses build flavors with different application IDs, each flavor must contain a separate license. Put the license file into the raw resource folder.
 
+## Initialization
+Before using any of the components, you need to initialize CertnIDSDK with the license and specific CertnIDLibraryType's objects.
+
+InitializeCertnIDSdkUseCase class in the sample project shows how to initialize CertnIDSDK with libraries. CertnIDMobileSdk.initialize() method should be called on background thread.
+
+Keep in mind that if you try to use any component without initialization, it will throw an exception.
+
 To read a raw file in Android and ensure that the reading operation is performed on an IO thread, you can use Kotlin coroutines.
 ```kotlin
 suspend operator fun invoke() = withContext(Dispatchers.IO) {
     val configuration = createCertnIDSdkConfiguration(context)
-    //…
+    certnIDMobileSdk.initialize(configuration)
 }
 
 private fun createCertnIDSdkConfiguration(context: Context) = CertnIDSdkConfiguration(
@@ -141,12 +148,12 @@ private fun createCertnIDSdkConfiguration(context: Context) = CertnIDSdkConfigur
 
 **Fragment Configuration**
 
-CertnIDDocumentAutoCaptureFragment provides the main functionality. It is abstract fragment and therefore must be subclassed and overrided its abstract methods. Its required runtime interaction is provided by public methods, for example certnIDStart().
+CertnIDDocumentAutoCaptureFragment provides the main functionality. It is embedded into the application as fragment from Android Support Library. Also it is abstract fragment and therefore must be subclassed and overrided its abstract methods. Its required runtime interaction is provided by public methods, for example certnIDStart().
 
 ```kotlin
 class BasicDocumentAutoCaptureFragment : CertnIDDocumentAutoCaptureFragment() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupCertnIDSdkViewModel()
     }
@@ -293,6 +300,139 @@ You may customize the colors used by DocumentLibraryType in your application. To
 <color name="certn_id_placeholder_overlay">#80131313</color>
 ```
 
+## UI Components - BaceBalancedLibraryType
+
+**Fragment Configuration**
+
+CertnIDFaceAutoCaptureFragment provides the main functionality. It is embedded into the application as fragment from Android Support Library. Also it is abstract fragment and therefore must be subclassed and overrided its abstract methods. Its required runtime interaction is provided by public methods, for example certnIDStart().
+
+```kotlin
+class BasicFaceAutoCaptureFragment : CertnIDFaceAutoCaptureFragment() {
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupCertnIDSdkViewModel()
+    }
+
+    //…
+}
+```
+
+```kotlin
+private fun setupCertnIDSdkViewModel() {
+    collectStateFlow {
+        launch {
+            certnIDSdkViewModel.state.collect { state ->
+                if (state.isInitialized) {
+                    certnIDStart()
+                }
+                //...
+            }
+        }
+    }
+}
+```
+
+The CertnIDFaceAutoCaptureFragment requires a configuration. To provide configuration data, you should override the provideCertnIDFaceConfiguration() method in your subclass implementation. This method should return an instance of the CertnIDFaceConfiguration data class with the desired parameters.
+
+```kotlin
+class BasicFaceAutoCaptureFragment : CertnIDFaceAutoCaptureFragment() {
+
+    override fun provideCertnIDFaceConfiguration() = CertnIDFaceConfiguration(
+        certnIDCameraFacing = CertnIDCameraFacing.FrontType,
+        certnIDCameraPreviewScaleType = CertnIDCameraPreviewScaleType.FitType,
+        //...
+    )
+
+    //…
+}
+```
+**Camera permission**
+
+A fragment will check the camera permission (Manifest.permission.CAMERA) right before the camera is started. If the camera permission is granted the fragment will start the camera. If the camera permission is not granted the fragment will use Android API - ActivityResultContracts.RequestPermission to request the camera permission. Android OS will present the system dialog to the user of the app. If the user explicitly denies the permission at this point, onCertnIDNoCameraPermission() callback is called. Implement this callback in order to navigate the user further in your app workflow.
+
+**Orientation Change**
+
+In order to handle the orientation change in multi-window mode correctly, configure the activity in your AndroidManifest.xml file as follows:
+
+```kotlin
+<activity
+    android:name=".MyActivity"
+    android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation" />
+```
+
+**Face Auto Capture**
+
+The fragment with instructions for obtaining quality face images suitable for further processing. 
+
+In order to configure the behaviour of CertnIDFaceAutoCaptureFragment, use CertnIDFaceConfiguration (see Fragment Configuration).
+
+To use the fragment, create a subclass of CertnIDFaceAutoCaptureFragment and override appropriate callbacks.
+
+To start the face auto capture process check whether face library is initialized. If face library is initialized, you can call the certnIDStart() method.
+
+In case you want to handle detection data, implement onCertnIDProcessed() callback. This callback is called with each processed camera frame. When the face auto capture process finishes successfully, the result will be returned via the onCertnIDCaptured() callback.
+
+In case you want to force the capture event, call the certnIDRequestCapture() method. The most recent image will be returned via the onCertnIDCaptured() callback asynchronously.
+
+Call certnIDStart() method again in case you need to start over the face auto capture process. You can also call certnIDStart() method to stop and start over ongoing process as well.
+
+In case you want to stop the face auto capture process prematurely, call the certnIDStopAsync() method. The callback in the method argument indicates that the processing is over.
+
+***Quality Attributes of the Output Image***
+
+You may adjust quality requirements for the output image. To perform this, you can use pre-defined instances - CertnIDQualityAttributeThresholds - from CertnIDQualityAttributeThresholdPresets with recommended thresholds and pass it to CertnIDDocumentConfiguration by setting the certnIDQualityAttributeThresholds. You can also create your own instance of CertnIDQualityAttributeThresholds from scratch or based on pre-defined instances according to your needs.
+
+Possible ways how to create CertnIDQualityAttributeThresholds:
+
+
+**Customization of UI components**
+
+***Strings***
+
+You can override the string resources in your application and provide alternative strings for supported languages using the standard Android localization mechanism.
+
+```kotlin
+<string name="certn_id_face_auto_capture_instruction_background_nonuniform">Plain background required</string>
+<string name="certn_id_face_auto_capture_instruction_candidate_selection">Stay still&#8230;</string>
+<string name="certn_id_face_auto_capture_instruction_device_pitch_too_high">Hold your phone at eye level</string>
+<string name="certn_id_face_auto_capture_instruction_expression_neutral_too_high">Smile :)</string>
+<string name="certn_id_face_auto_capture_instruction_expression_neutral_too_low">Keep neutral expression</string>
+<string name="certn_id_face_auto_capture_instruction_eyes_too_closed">Open your eyes</string>
+<string name="certn_id_face_auto_capture_instruction_face_out_of_bounds">Center your face</string>
+<string name="certn_id_face_auto_capture_instruction_face_not_detected">Position your face into the circle</string>
+<string name="certn_id_face_auto_capture_instruction_size_too_large">Move back</string>
+<string name="certn_id_face_auto_capture_instruction_size_too_small">Move closer</string>
+<string name="certn_id_face_auto_capture_instruction_glasses_present">Remove glasses</string>
+<string name="certn_id_face_auto_capture_instruction_brightness_too_high">Turn towards light</string>
+<string name="certn_id_face_auto_capture_instruction_brightness_too_low">Turn towards light</string>
+<string name="certn_id_face_auto_capture_instruction_contrast_too_high">Turn towards light</string>
+<string name="certn_id_face_auto_capture_instruction_contrast_too_low">Turn towards light</string>
+<string name="certn_id_face_auto_capture_instruction_shadow_too_high">Turn towards light</string>
+<string name="certn_id_face_auto_capture_instruction_sharpness_too_low">Turn towards light</string>
+<string name="certn_id_face_auto_capture_instruction_unique_intensity_levels_too_low">Turn towards light</string>
+<string name="certn_id_face_auto_capture_instruction_mask_present">Remove mask</string>
+<string name="certn_id_face_auto_capture_instruction_mouth_too_open">Close your mouth</string>
+<string name="certn_id_face_auto_capture_instruction_pitch_too_high">Lower your chin</string>
+<string name="certn_id_face_auto_capture_instruction_pitch_too_low">Lift your chin</string>
+<string name="certn_id_face_auto_capture_instruction_yaw_too_left">Look right</string>
+<string name="certn_id_face_auto_capture_instruction_yaw_too_right">Look left</string>
+```
+
+***Colors***
+
+You may customize the colors used by FaceBalancedLibraryType in your application. To use custom colors, override the specific color.
+
+```kotlin
+<color name="certn_id_detection_layer">#ffffffff</color>
+<color name="certn_id_instruction_background">#fff8fbfb</color>
+<color name="certn_id_instruction_candidate_selection_background">#ff00bfb2</color>
+<color name="certn_id_instruction_candidate_selection_text">#ff131313</color>
+<color name="certn_id_instruction_text">#ff131313</color>
+<color name="certn_id_placeholder">#ffffffff</color>
+<color name="certn_id_placeholder_candidate_selection">#ff00bfb2</color>
+<color name="certn_id_placeholder_overlay">#80131313</color>
+```
 
 ## Permissions
 CertnIDSDK declares the following permission in **AndroidManifest.xml**:
