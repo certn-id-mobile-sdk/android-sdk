@@ -434,6 +434,112 @@ You may customize the colors used by FaceBalancedLibraryType in your application
 <color name="certn_id_placeholder_overlay">#80131313</color>
 ```
 
+## NFC Reading
+
+UI NFC Travel Document Reader is a ready-to-use component for incorporating NFC reading capabilities into your application. It includes a set of UI elements to guide the user through the NFC reading process.
+
+This component is based on a Fragment from AndroidX. In order to use it, an abstract CertnIDNfcTravelDocumentReaderFragment must be subclassed.
+
+The CertnIDNfcTravelDocumentReaderFragment requires a configuration. To provide configuration data, you should override the provideCertnIDTravelConfiguration() method in your subclass implementation. This method should return an instance of the CertnIDTravelConfiguration class with the desired parameters.
+
+Override the onCertnIDSucceeded method to handle successful NFC document reading. Similarly, override the onCertnIDFailed method to manage reading failures. The reading process of the NFC Travel Document is tied to the fragment’s lifecycle. To cancel the reading process, simply transition the fragment to the destroyed state, for example, by navigating to another fragment.
+
+### Sample implementation
+
+
+```kotlin
+class DefaultNfcTravelDocumentReaderFragment : CertnIDNfcTravelDocumentReaderFragment() {
+
+    private val nfcReadingViewModel: NfcReadingViewModel by activityViewModels()
+
+    override fun onCertnIDSucceeded(certnIDTravelDocument: CertnIDTravelDocument) {
+        nfcReadingViewModel.setTravelDocument(certnIDTravelDocument)
+    }
+
+    override fun onCertnIDFailed(exception: Exception) {
+        nfcReadingViewModel.setError(exception)
+    }
+
+    override fun provideCertnIDTravelConfiguration(): CertnIDTravelConfiguration {
+        return nfcReadingViewModel.state.value?.certnIDTravelConfiguration!!
+    }
+}
+```
+
+```kotlin
+class BasicFaceAutoCaptureFragment : CertnIDFaceAutoCaptureFragment() {
+
+collectStateFlow {
+    launch {
+        faceViewModel.nfcKeyResponse.collect { nfcKeyResponse ->
+            nfcKeyResponse?.data?.apply {
+                if (documentNumber != null && dateOfExpiry != null && dateOfBirth != null) {
+                    nfcReadingViewModel.setupConfiguration(
+                        CertnIDNfcKey(documentNumber, dateOfExpiry, dateOfBirth)
+                    )
+                }
+            }
+        }   
+    }
+    //...
+}
+```
+
+```kotlin
+fun setupConfiguration(certnIDNfcKey: CertnIDNfcKey) {
+    viewModelScope.launch {
+        val certnIDTravelConfiguration = CertnIDTravelConfiguration(
+            certnIDNfcKey = certnIDNfcKey,
+            authorityCertificatesFilePath = resolveAuthorityCertificatesFileUseCase().path,
+        )
+        mutableState.value =
+            state.value!!.copy(certnIDTravelConfiguration = certnIDTravelConfiguration)
+    }
+}
+```
+
+### CertnIDTravelConfiguration
+
+`CertnIDTravelConfiguration` has two parameters. `CertnIDNfcKey` and path to `PEM` file as string. `PEM` format file is used to store certificates of Country Signing Certificate Authority (CSCA).
+
+```kotlin
+class CertnIDTravelConfiguration(
+    certnIDNfcKey: CertnIDNfcKey,
+    authorityCertificatesFilePath: String? = ""
+) {
+  //...
+}
+```
+
+### CertnIDNfcKey
+
+`CertnIDNfcKey` is the access key to NFC data:
+
+```kotlin
+class CertnIDNfcKey(documentNumber: String, dateOfExpiry: String, dateOfBirth: String) {
+    //...
+}
+```
+
+### CertnIDTravelDocument
+
+`CertnIDTravelDocument` is an result object of NFC scanning process. It can be encoded and sended to the server for processing. It has no public available parameters.
+
+
+**UI of the fragment can be customized**
+
+***Strings***
+
+You can override the string resources and provide alternative strings for supported languages using the standard Android localization mechanism.
+
+
+```kotlin
+<string name="certn_id_nfc_travel_document_reader_searching_title">Searching for NFC chip…</string>
+<string name="certn_id_nfc_travel_document_reader_searching_subhead">Slide your phone gently on the surface of the document until we find the right position.</string>
+<string name="certn_id_nfc_travel_document_reader_reading_title">Hold still</string>
+<string name="certn_id_nfc_travel_document_reader_reading_subhead">Please keep both device and document still.</string>
+```
+
 ## Permissions
 CertnIDSDK declares the following permission in **AndroidManifest.xml**:
 
@@ -445,4 +551,9 @@ AndroidManifest.xml
 ```
 
 ## Support and Documentation
-For detailed documentation and support, visit the ...
+
+For detailed documentation and support, visit the [TrustmaticMobileSDK Documentation](https://demo.trustmatic.io/documentation/) or contact support at [support@trustmatic.com](mailto:support@trustmatic.com).
+
+## License
+
+CertnIDMobileSDK is available under a commercial license. For more information, please refer to the official website or contact the sales team.
