@@ -124,12 +124,13 @@ private fun readLicenseBytes(resources: Resources) =
     resources.openRawResource(R.raw.certn_id_license).use(InputStream::readBytes)
 ```
 
-## Usage
+#### `libraries`
+
 CertnIDSDK uses these libraries:
-- **DocumentLibraryType**
-- **BaceBalancedLibraryType**
-- **FaceFastLibraryType**
-- **NfcLibraryType**
+- **DocumentLibraryType** - Enables document scanning capabilities.
+- **BaceBalancedLibraryType** - Enables face recognition with balanced performance and accuracy.
+- **FaceFastLibraryType** - Enables faster face recognition with potentially lower accuracy compared to `BaceBalancedLibraryType`.
+- **NfcLibraryType** - Enables NFC functionality for reading NFC-enabled documents.
 
 Only one of BaceBalancedLibraryType and FaceFastLibraryType can be used at the same time.
 
@@ -144,9 +145,23 @@ private fun createCertnIDSdkConfiguration(context: Context) = CertnIDSdkConfigur
     )
 )
 ```
-## UI Components - DocumentLibraryType
+## Document Auto Capture
 
-**Fragment Configuration**
+### Camera permission
+
+A fragment will check the camera permission (Manifest.permission.CAMERA) right before the camera is started. If the camera permission is granted the fragment will start the camera. If the camera permission is not granted the fragment will use Android API - ActivityResultContracts.RequestPermission to request the camera permission. Android OS will present the system dialog to the user of the app. If the user explicitly denies the permission at this point, onCertnIDNoCameraPermission() callback is called. Implement this callback in order to navigate the user further in your app workflow.
+
+### Orientation Change
+
+In order to handle the orientation change in multi-window mode correctly, configure the activity in your AndroidManifest.xml file as follows:
+
+```kotlin
+<activity
+    android:name=".MyActivity"
+    android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation" />
+```
+
+### Sample implementation
 
 CertnIDDocumentAutoCaptureFragment provides the main functionality. It is embedded into the application as fragment from Android Support Library. Also it is abstract fragment and therefore must be subclassed and overrided its abstract methods. Its required runtime interaction is provided by public methods, for example certnIDStart().
 
@@ -192,22 +207,6 @@ class BasicDocumentAutoCaptureFragment : CertnIDDocumentAutoCaptureFragment() {
 }
 ```
 
-**Camera permission**
-
-A fragment will check the camera permission (Manifest.permission.CAMERA) right before the camera is started. If the camera permission is granted the fragment will start the camera. If the camera permission is not granted the fragment will use Android API - ActivityResultContracts.RequestPermission to request the camera permission. Android OS will present the system dialog to the user of the app. If the user explicitly denies the permission at this point, onCertnIDNoCameraPermission() callback is called. Implement this callback in order to navigate the user further in your app workflow.
-
-**Orientation Change**
-
-In order to handle the orientation change in multi-window mode correctly, configure the activity in your AndroidManifest.xml file as follows:
-
-```kotlin
-<activity
-    android:name=".MyActivity"
-    android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation" />
-```
-
-**Document Auto Capture**
-
 The fragment with instructions for obtaining quality document images suitable for further processing.
 
 In order to configure the behaviour of CertnIDDocumentAutoCaptureFragment, use CertnIDDocumentConfiguration (see Fragment Configuration).
@@ -224,7 +223,28 @@ Call certnIDStart() method again in case you need to start over the document aut
 
 In case you want to stop the document auto capture process prematurely, call the certnIDStopAsync() method. The callback in the method argument indicates that the processing is over.
 
-***Quality Attributes of the Output Image***
+### CertnIDDocumentConfiguration
+
+```kotlin
+class CertnIDDocumentConfiguration(
+    // Specify camera facing. Default is `BackType`.
+    certnIDCameraFacing: CertnIDCameraFacing = CertnIDCameraFacing.BackType,
+    // Specify camera preview scale type. Default is `FitType`.
+    certnIDCameraPreviewScaleType: CertnIDCameraPreviewScaleType = CertnIDCameraPreviewScaleType.FitType,
+    // Specify validation mode. Default is `StandardMode`.
+    certnIDValidationMode: CertnIDValidationMode = CertnIDValidationMode.StandardMode,
+    // Customize thresholds for the quality attributes of the document auto capture result.
+    certnIDQualityAttributeThresholds: CertnIDQualityAttributeThresholds = CertnIDQualityAttributeThresholds(),
+    // Specify MRZ validation. Default is `NoneType`.
+    certnIDMrzValidation: CertnIDMrzValidation = CertnIDMrzValidation.NoneType,
+    // Specify the type of placeholder used in document auto-capture UI. Default is `CornersOnlyType`.
+    certnIDPlaceholderType: CertnIDPlaceholderType = CertnIDPlaceholderType.CornersOnlyType
+) {
+    //…
+}
+```
+
+### Quality Attributes of the Output Image
 
 You may adjust quality requirements for the output image. To perform this, you can use pre-defined instances - CertnIDQualityAttributeThresholds - from CertnIDQualityAttributeThresholdPresets with recommended thresholds and pass it to CertnIDDocumentConfiguration by setting the certnIDQualityAttributeThresholds. You can also create your own instance of CertnIDQualityAttributeThresholds from scratch or based on pre-defined instances according to your needs.
 
@@ -265,7 +285,7 @@ Available presets (pre-defined instances with thresholds) in CertnIDQualityAttri
 
   - maxHotspotsScore value is 0.008
 
-**Customization of UI components**
+### Customization of UI components
 
 ***Strings***
 
@@ -300,9 +320,23 @@ You may customize the colors used by DocumentLibraryType in your application. To
 <color name="certn_id_placeholder_overlay">#80131313</color>
 ```
 
-## UI Components - BaceBalancedLibraryType
+## Face Capture - FaceBalancedLibraryType / FaceFastLibraryType
 
-**Fragment Configuration**
+### Camera permission
+
+A fragment will check the camera permission (Manifest.permission.CAMERA) right before the camera is started. If the camera permission is granted the fragment will start the camera. If the camera permission is not granted the fragment will use Android API - ActivityResultContracts.RequestPermission to request the camera permission. Android OS will present the system dialog to the user of the app. If the user explicitly denies the permission at this point, onCertnIDNoCameraPermission() callback is called. Implement this callback in order to navigate the user further in your app workflow.
+
+### Orientation Change
+
+In order to handle the orientation change in multi-window mode correctly, configure the activity in your AndroidManifest.xml file as follows:
+
+```kotlin
+<activity
+    android:name=".MyActivity"
+    android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation" />
+```
+
+### Sample implementation
 
 CertnIDFaceAutoCaptureFragment provides the main functionality. It is embedded into the application as fragment from Android Support Library. Also it is abstract fragment and therefore must be subclassed and overrided its abstract methods. Its required runtime interaction is provided by public methods, for example certnIDStart().
 
@@ -347,21 +381,6 @@ class BasicFaceAutoCaptureFragment : CertnIDFaceAutoCaptureFragment() {
     //…
 }
 ```
-**Camera permission**
-
-A fragment will check the camera permission (Manifest.permission.CAMERA) right before the camera is started. If the camera permission is granted the fragment will start the camera. If the camera permission is not granted the fragment will use Android API - ActivityResultContracts.RequestPermission to request the camera permission. Android OS will present the system dialog to the user of the app. If the user explicitly denies the permission at this point, onCertnIDNoCameraPermission() callback is called. Implement this callback in order to navigate the user further in your app workflow.
-
-**Orientation Change**
-
-In order to handle the orientation change in multi-window mode correctly, configure the activity in your AndroidManifest.xml file as follows:
-
-```kotlin
-<activity
-    android:name=".MyActivity"
-    android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation" />
-```
-
-**Face Auto Capture**
 
 The fragment with instructions for obtaining quality face images suitable for further processing. 
 
@@ -379,14 +398,129 @@ Call certnIDStart() method again in case you need to start over the face auto ca
 
 In case you want to stop the face auto capture process prematurely, call the certnIDStopAsync() method. The callback in the method argument indicates that the processing is over.
 
-***Quality Attributes of the Output Image***
+### CertnIDFaceConfiguration
+
+
+```kotlin
+class CertnIDFaceConfiguration(
+    // Specify camera facing. Default is `FrontType`.
+    certnIDCameraFacing: CertnIDCameraFacing = CertnIDCameraFacing.FrontType,
+    // Specify camera preview scale type. Default is `FitType`.
+    certnIDCameraPreviewScaleType: CertnIDCameraPreviewScaleType = CertnIDCameraPreviewScaleType.FitType,
+    // Configure thresholds for the quality attributes of the face auto capture result.
+    // If the threshold property is omitted, default corresponding quality attribute will be validated.
+    certnIDQualityAttributeThresholds: CertnIDQualityAttributeThresholds = CertnIDQualityAttributeThresholds(),
+    certnIDFaceDetectionQuery: CertnIDFaceDetectionQuery
+) {
+    //…
+}
+```
+### CertnIDQualityAttributeThresholds
+
+```kotlin
+data class CertnIDQualityAttributeThresholds(
+    // Minimal valid confidence of the detected face.
+    // Value 0.0 represents low confidence.
+    // Vaue 1.0 represents high confidence.
+    val minConfidence: Double? = null,
+    // Maximal pitch angle of the device.
+    // Valid closed interval of angle values is from 0.0 to 90.0 degrees.
+    val maxDevicePitchAngle: Float? = null,
+    // Valid interval of size of the detected face.
+    // Value 0.0 represents small size.
+    // Vaue 1.0 represents large size.
+    val sizeInterval: CertnIDIntervalDouble? = null,
+    // Valid interval of rotation of the pitch of the detected face.
+    // Value -90.0 represents down rotated pitch of the detected face.
+    // Vaue 90.0 represents up rotated pitch of the detected face.
+    val pitchAngleInterval: CertnIDIntervalFloat? = null,
+    // Valid interval of rotation of the yaw of the detected face.
+    // Value -90.0 represents left rotated yaw of the detected face.
+    // Vaue 90.0 represents right rotated yaw of the detected face.
+    val yawAngleInterval: CertnIDIntervalFloat? = null,
+    // Minimal valid sharpness of the detected face.
+    // Value 0.0 represents blurry face.
+    // Vaue 1.0 represents sharp face.
+    val minSharpness: Double? = null,
+    // Valid interval of brightness of the detected face.
+    // Value 0.0 represents low brightness.
+    // Vaue 1.0 represents high brightness.
+    val brightnessInterval: CertnIDIntervalDouble? = null,
+    // Valid interval of contrast of the detected face.
+    // Value 0.0 represents low contrast.
+    // Vaue 1.0 represents high contrast.
+    val contrastInterval: CertnIDIntervalDouble? = null,
+    // Minimal valid unique intensity levels of the detected face.
+    // Value 0.0 represents low unique intensity levels.
+    // Vaue 1.0 represents high unique intensity levels.
+    val minUniqueIntensityLevels: Double? = null,
+    val minBackgroundUniformity: Double? = null,
+    // Maximal valid glasses presence score of the detected face.
+    // Value 0.0 represents face with no glasses.
+    // Vaue 1.0 represents face with glasses.
+    val maxGlassesPresenceScore: Double? = null,
+    // Maximal valid mask presence score of the detected face.
+    // Value 0.0 represents face with no mask.
+    // Vaue 1.0 represents face with mask.
+    val maxMaskPresenceScore: Double? = null,
+    // Minimal valid mouth status score of the detected face.
+    // Value 0.0 represents face with mouth opened.
+    // Vaue 1.0 represents face with mouth closed.
+    val minMouthStatusScore: Double? = null,
+    // Minimal valid eyes status score of the detected face.
+    // Value 0.0 represents face with eyes closed.
+    // Vaue 1.0 represents face with eyes opened.
+    val minEyesStatusScore: Double? = null,
+    // Maximal valid shadow of the detected face.
+    // Value 0.0 represents face without shadows.
+    // Vaue 1.0 represents face with shadows.
+    val maxShadow: Double? = null
+) {
+    //…
+}
+```
+
+### Quality Attributes of the Output Image
 
 You may adjust quality requirements for the output image. To perform this, you can use pre-defined instances - CertnIDQualityAttributeThresholds - from CertnIDQualityAttributeThresholdPresets with recommended thresholds and pass it to CertnIDDocumentConfiguration by setting the certnIDQualityAttributeThresholds. You can also create your own instance of CertnIDQualityAttributeThresholds from scratch or based on pre-defined instances according to your needs.
 
 Possible ways how to create CertnIDQualityAttributeThresholds:
 
+- The standard preset
 
-**Customization of UI components**
+```kotlin
+val standard = CertnIDQualityAttributeThresholdPresets.standard
+
+// Modified thresholds based on the standard preset
+val modified = standard.copy(
+    minConfidence = 0.8,
+    minSharpness = null
+)
+```
+
+- Custom thresholds
+
+```kotlin
+val custom = CertnIDQualityAttributeThresholds(
+    minConfidence = 0.8,
+    minSharpness = null
+)
+```
+
+Available presets (pre-defined instances with thresholds) in CertnIDQualityAttributeThresholdPresets:
+
+- **standard** - the resulting image suitable for onboarding or matching. Thresholds for standard image output quality:
+
+  - minConfidence value is 0.15
+
+  - maxDevicePitchAngle value is 30.0
+
+  - sizeInterval value is [0.16, 0.20]
+
+  - minSharpness value is 0.2832
+
+
+### Customization of UI components
 
 ***Strings***
 
