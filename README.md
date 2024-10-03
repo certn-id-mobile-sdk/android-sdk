@@ -41,7 +41,7 @@ build.gradle
 ```kotlin
 dependencies {
     //…
-    implementation "certn-id-mobile-sdk:android-sdk:$certnIdVersion" //lattest version 0.6.3
+    implementation "certn-id-mobile-sdk:android-sdk:$certnIdVersion" //lattest version 0.6.6
     //…
 }
 ```
@@ -657,8 +657,16 @@ class CertnIDNfcKey(documentNumber: String, dateOfExpiry: String, dateOfBirth: S
 
 ### CertnIDTravelDocument
 
-`CertnIDTravelDocument` is an result object of NFC scanning process. It can be encoded and sended to the server for processing. It has no public available parameters.
+`CertnIDTravelDocument` is an result object of NFC scanning process. It can be encoded and sended to the server for processing. It has following public available parameters:
 
+```kotlin
+val ldsVersion: String
+val accessControlProtocol = CertnIDAccessControlProtocol
+val authenticationStatus = CertnIDAuthenticationStatus
+val faceImageBase: CertnIDImage
+val machineReadableZone: CertnIDMachineReadableZone
+val dataGroups: CertnIDLds1eMrtdApplication
+```
 
 **UI of the fragment can be customized**
 
